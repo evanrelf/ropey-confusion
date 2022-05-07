@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+IFS=$'\n\t'
+
+wc_report() {
+  local contents="$1"
+  echo -n "Bytes: "; echo -ne "${contents}" | wc -c | tr -d ' '
+  echo -n "Chars: "; echo -ne "${contents}" | wc -m | tr -d ' '
+  echo -n "Lines: "; echo -ne "${contents}" | wc -l | tr -d ' '
+}
+
+ropey_report() {
+  local contents="$1"
+  echo -ne "${contents}" | cargo run --quiet
+}
+
+report() {
+  local name="$1"
+  local contents="$2"
+  echo "${name}"
+  wc_report "${contents}"
+  ropey_report "${contents}"
+  echo
+}
+
+report \
+  "EMPTY" \
+  ""
+
+report \
+  "SINGLE LINE (without ending newline)" \
+  "Hello"
+
+report \
+  "SINGLE LINE (with ending newline)" \
+  "Hello\n"
+
+report \
+  "MULTI LINE (without ending newline)" \
+  "Hello\nworld"
+
+report \
+  "MULTI LINE (with ending newline)" \
+  "Hello\nworld\n"

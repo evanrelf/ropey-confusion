@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 
 use ropey::Rope;
-use std::{fs::File, io, path::Path};
+use std::io::Read;
 
 #[derive(Debug)]
 struct RopeWc {
@@ -11,19 +11,24 @@ struct RopeWc {
 }
 
 impl RopeWc {
-    fn count(path: impl AsRef<Path>) -> Result<Self, io::Error> {
-        let rope = Rope::from_reader(File::open(path)?)?;
+    fn count(str: &str) -> Self {
+        let rope = Rope::from_str(str);
 
-        Ok(Self {
+        Self {
             bytes: rope.len_bytes(),
             chars: rope.len_chars(),
             lines: rope.len_lines(),
-        })
+        }
     }
 }
 
 fn main() {
-    for path in std::env::args().skip(1) {
-        println!("{:#?}", RopeWc::count(path).unwrap());
-    }
+    let input = {
+        let mut buffer = String::new();
+        let mut stdin = std::io::stdin();
+        stdin.read_to_string(&mut buffer).unwrap();
+        buffer
+    };
+
+    println!("{:#?}", RopeWc::count(&input));
 }
